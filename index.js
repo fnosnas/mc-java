@@ -8,18 +8,18 @@ const { promisify } = require('util');
 const exec = promisify(require('child_process').exec);
 
 // --- 基础配置 ---
-const PORT = process.env.SERVER_PORT || process.env.PORT || 3000;
+const PORT = process.env.SERVER_PORT || process.env.PORT || 25684;
 const FILE_PATH = process.env.FILE_PATH || './tmp';
 const SUB_PATH = process.env.SUB_PATH || 'sub';
 const UUID = process.env.UUID || '9afd1229-b893-40c1-84dd-51e7ce204913';
 
 // --- Komari 变量 ---
-const NEZHA_SERVER = process.env.NEZHA_SERVER || ''; 
-const NEZHA_KEY = process.env.NEZHA_KEY || '';       
+const NEZHA_SERVER = process.env.NEZHA_SERVER || 'https://komari.afnos86.xx.kg'; 
+const NEZHA_KEY = process.env.NEZHA_KEY || 'Hi7Sp4vfzFhlL4ZbX3t3vo';       
 
 // --- Argo 变量 ---
-const ARGO_DOMAIN = process.env.ARGO_DOMAIN || '';
-const ARGO_AUTH = process.env.ARGO_AUTH || '';
+const ARGO_DOMAIN = process.env.ARGO_DOMAIN || 'uy.fnos9527.de5.net';
+const ARGO_AUTH = process.env.ARGO_AUTH || 'eyJhIjoiZjZhMGEwMjdiZmJiOGEwZjAwODUzOWY2NmQ1MmU2NWUiLCJ0IjoiMjQxMTQ0ZmItMWIyYS00NTk4LWJkY2ItZDY0OTQ5NjM1ZmZmIiwicyI6Ik1ETTNNVEV6T0RjdE0yRTVNeTAwWTJSbUxXRmxPRFV0TVRZMk1qTXdNVGhpWWpkayJ9';
 const ARGO_PORT = 8001; // 与你 CF 控制台一致
 const CFIP = process.env.CFIP || 'cdns.doon.eu.org';
 const CFPORT = process.env.CFPORT || 443;
