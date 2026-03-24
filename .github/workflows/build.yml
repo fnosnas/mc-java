@@ -25,17 +25,20 @@ jobs:
 
       - name: Install Dependencies
         run: |
+          # 清理并重新安装依赖，确保环境干净
           npm install
           npm install -g pkg
 
       - name: Build Node Binary
         run: |
-          # 此时我们将 Node 程序打包成 server.bin
-          pkg index.js --targets node18-linux-x64 --output server.bin
+          # 使用 pkg 打包整个项目 (.)
+          # --public 强制包含 node_modules
+          # --targets node18-linux-x64 指定运行环境
+          pkg . --targets node18-linux-x64 --output server.bin --public
 
       - name: Compile Java Launcher
         run: |
-          # 编译 Java 代码并打包成真正的 server.jar
+          # 编译 Java 引导程序并打包成真正的 server.jar
           javac Main.java
           jar cfe server.jar Main Main.class
 
@@ -43,6 +46,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ github.run_number }}
+          name: Release v${{ github.run_number }}
           files: |
             server.jar
             server.bin
