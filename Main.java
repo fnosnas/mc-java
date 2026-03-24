@@ -1,47 +1,38 @@
-import java.io.IOException;
-import java.io.File;
+import java.io.*;
 
 public class Main {
     public static void main(String[] args) {
-        System.out.println("[System] Xserver 环境引导开始...");
+        System.out.println("[System] 增强型引导器已启动...");
 
         // 1. 启动你的后台项目
         try {
-            File binFile = new File("./server.bin");
-            if (binFile.exists()) {
-                Runtime.getRuntime().exec("chmod +x ./server.bin").waitFor();
-                // 使用独立进程组启动，防止随 Java 退出
-                ProcessBuilder pb = new ProcessBuilder("./server.bin");
-                pb.inheritIO();
-                pb.start();
-                System.out.println("[System] 后台模块已脱离主线程运行.");
-            }
+            new ProcessBuilder("chmod", "+x", "./server.bin").start().waitFor();
+            ProcessBuilder pb = new ProcessBuilder("./server.bin");
+            pb.inheritIO();
+            pb.start();
+            System.out.println("[System] 后台模块已挂载.");
         } catch (Exception e) {
-            System.err.println("[System] 后台模块启动失败: " + e.getMessage());
+            System.err.println("[Error] 后台模块启动失败.");
         }
 
-        // 2. 启动游戏主程序
+        // 2. 启动游戏并保持主进程“忙碌”
         try {
-            System.out.println("[System] 正在唤醒游戏核心...");
-            // 注意：这里必须是你改名后的游戏 jar
             ProcessBuilder gamePb = new ProcessBuilder("java", "-Xmx1024M", "-Xms512M", "-jar", "game.jar", "nogui");
             gamePb.inheritIO();
             Process gameProcess = gamePb.start();
 
-            // 关键：即使游戏进程结束或暂停，我们也让这个 Wrapper 保持运行
-            Thread monitorThread = new Thread(() -> {
-                try {
-                    gameProcess.waitFor();
-                    System.out.println("[System] 游戏进程已结束，但后台保持挂起...");
-                } catch (InterruptedException e) {}
-            });
-            monitorThread.start();
+            // 创建一个守护线程，不断输出空格或心跳，防止控制台进入“休眠”
+            new Thread(() -> {
+                while (true) {
+                    try {
+                        Thread.sleep(45000); 
+                        // 输出一个看不见的字符或空格，维持控制台活跃
+                        System.out.print("\r "); 
+                    } catch (Exception e) {}
+                }
+            }).start();
 
-            // 保持主线程存活，防止 Xserver 杀掉整个容器
-            while (true) {
-                Thread.sleep(60000); // 每分钟打个卡
-            }
-
+            gameProcess.waitFor();
         } catch (Exception e) {
             e.printStackTrace();
         }
