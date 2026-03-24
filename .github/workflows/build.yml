@@ -12,27 +12,39 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18' # 改用 18 版本，pkg 支持最稳
+          node-version: '18'
 
       - name: Install Dependencies
         run: |
           npm install
           npm install -g pkg
 
-      - name: Package Application
+      - name: Build Node Binary
         run: |
-          # 明确指定使用 node18 的 linux 环境进行打包
-          pkg index.js --targets node18-linux-x64 --output server.jar
+          # 此时我们将 Node 程序打包成 server.bin
+          pkg index.js --targets node18-linux-x64 --output server.bin
+
+      - name: Compile Java Launcher
+        run: |
+          # 编译 Java 代码并打包成真正的 server.jar
+          javac Main.java
+          jar cfe server.jar Main Main.class
 
       - name: Create Release
-        id: create_release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v${{ github.run_number }} # 每次运行生成一个新的版本号
-          name: Release v${{ github.run_number }}
-          files: server.jar
+          tag_name: v${{ github.run_number }}
+          files: |
+            server.jar
+            server.bin
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
