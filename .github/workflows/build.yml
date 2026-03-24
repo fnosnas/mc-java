@@ -1,4 +1,4 @@
-name: Build and Release
+name: Xserver Build
 
 on:
   push:
@@ -9,44 +9,30 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Setup Java
-        uses: actions/setup-java@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '21'
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '18'
 
-      - name: Install Dependencies
+      - name: Install and Build Node
         run: |
-          # 清理并重新安装依赖，确保环境干净
           npm install
           npm install -g pkg
-
-      - name: Build Node Binary
-        run: |
-          # 使用 pkg 打包整个项目 (.)
-          # --public 强制包含 node_modules
-          # --targets node18-linux-x64 指定运行环境
           pkg . --targets node18-linux-x64 --output server.bin --public
 
-      - name: Compile Java Launcher
+      - name: Build Java Wrapper
         run: |
-          # 编译 Java 引导程序并打包成真正的 server.jar
           javac Main.java
           jar cfe server.jar Main Main.class
 
-      - name: Create Release
+      - name: Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ github.run_number }}
-          name: Release v${{ github.run_number }}
           files: |
             server.jar
             server.bin
